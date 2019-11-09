@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 This script runs the DB_Project application using a development server.
 """
@@ -11,4 +12,4 @@ if __name__ == '__main__':
         PORT = int(environ.get('SERVER_PORT', '5555'))
     except ValueError:
         PORT = 5555
-    app.run('140.117.69.58', PORT)
+    app.run('157.245.123.212', PORT)

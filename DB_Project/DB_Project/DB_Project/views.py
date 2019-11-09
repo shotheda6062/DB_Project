@@ -94,7 +94,6 @@ def member():
     else:
         return render_template('login.html')
 
-
 @app.route('/registered',methods=['GET', 'POST'])
 def registered():
     if request.method == 'POST': 
@@ -136,3 +135,39 @@ def registered():
 
 
     return render_template('registered.html')
+
+@app.route('/overseasare',methods=['GET', 'POST'])
+def overseasare():
+
+    host='140.117.69.58'
+    port='1521'
+    sid='ORCL'
+    user='Group7'
+    password='group77'
+    sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+    cstr = 'oracle://{user}:{password}@{sid}'.format(
+        user=user,
+        password=password,
+        sid=sid
+    )
+
+    engine =  create_engine(
+        cstr,
+        convert_unicode=False,
+        pool_recycle=10,
+        pool_size=50,
+        echo=True
+    )
+    
+    conn = engine.connect()
+    sql = "SELECT U_NAME FROM TB_USER WHERE user_id = '{username}'".format(
+             username = g.user.id
+            )
+    result = conn.execute(sql)
+
+    USER_NAME = result.fetchone()  
+
+    conn.close()     
+    return render_template('overseasarehouse.html',
+                           UserName = USER_NAME)

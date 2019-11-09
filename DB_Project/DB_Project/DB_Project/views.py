@@ -1,7 +1,7 @@
+#coding=utf-8
 """
 Routes and views for the flask application.
 """
-#coding=utf-8
 from datetime import datetime
 from flask import render_template, request,g
 from DB_Project import app
@@ -89,7 +89,7 @@ def member():
         #  登入成功，轉址  
             conn.close()
             return render_template('index.html')
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None :
         return render_template('login.html')
     else:
         return render_template('login.html')

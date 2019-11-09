@@ -3,65 +3,136 @@ Routes and views for the flask application.
 """
 
 from datetime import datetime
-from flask import render_template
+from flask import render_template, request,g
 from DB_Project import app
 from sqlalchemy import Column, String, create_engine
 import cx_Oracle
+import json
+from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user
+
+app.secret_key = 'Your Key'
+login_manager = LoginManager(app)
+class User(UserMixin):
+    def is_authenticated(self):
+        return True
+    def is_active(self):
+        return True
+    def is_anonymous(self):
+        return False
+    
+
+@login_manager.user_loader  
+def user_loader(user_id):
+
+    if user_id is None:
+        return None
+
+    user = User()  
+    user.id = user_id  
+    return user
+
+@app.before_request
+def before_request():
+    g.user = current_user
 
 @app.route('/')
 @app.route('/home')
 def home():
-    """Renders the home page."""
-    host='140.117.69.58'
-    port='1521'
-    sid='ORCL'
-    user='Group7'
-    password='group77'
-    sid = cx_Oracle.makedsn(host, port, sid=sid)
-
-    cstr = 'oracle://{user}:{password}@{sid}'.format(
-        user=user,
-        password=password,
-        sid=sid
-    )
-
-    engine =  create_engine(
-        cstr,
-        convert_unicode=False,
-        pool_recycle=10,
-        pool_size=50,
-        echo=True
-    )
-    
-    conn = engine.connect()
-    query_one_query = 'SELECT TEST_1 FROM TEST_1'
-    result = conn.execute(query_one_query)
-    for item in result:
-        print(item)
-    conn.close()
-
-    return render_template(
+     return render_template(
         'index.html',
-        title=result,
+        title='中山國際轉運站',
         year=datetime.now().year,
     )
 
-@app.route('/contact')
-def contact():
-    """Renders the contact page."""
-    return render_template(
-        'contact.html',
-        title='Contact',
-        year=datetime.now().year,
-        message='Your contact page.'
-    )
+@app.route('/memberCenter',methods=['GET', 'POST'])
+def member():
+    if request.method == 'POST': 
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
 
-@app.route('/about')
-def about():
-    """Renders the about page."""
-    return render_template(
-        'about.html',
-        title='About',
-        year=datetime.now().year,
-        message='Your application description page.'
-    )
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+    
+        conn = engine.connect()
+        sql = "SELECT 1 FROM TB_USER WHERE user_id = '{username}' AND u_passwd = '{password}'".format(
+             username = request.form['username'],
+             password = request.form['password']
+            )
+        result = conn.execute(sql)
+
+       
+        if result.fetchone() is None:  
+            conn.close()
+            return render_template('login.html')
+        else:
+        #  實作User類別  
+            user = User()  
+        #  設置id  
+            user.id = request.form['username']  
+        #  這邊，透過login_user來記錄user_id，如下了解程式碼的login_user說明。  
+            login_user(user)  
+        #  登入成功，轉址  
+            conn.close()
+            return render_template('index.html')
+    if g.user is not None and g.user.is_authenticated():
+        return render_template('login.html')
+    else:
+        return render_template('login.html')
+
+
+@app.route('/registered',methods=['GET', 'POST'])
+def registered():
+    if request.method == 'POST': 
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+    
+        conn = engine.connect()
+        sql = "INSERT INTO GROUP7.TB_USER (USER_ID, U_EMAIL, U_PASSWD, U_NAME, U_ADDRESS, U_TEL, U_PERMISSION) VALUES ('{USER_ID}', '{U_EMAIL}', '{U_PASSWD}', '{U_NAME}', '{U_ADDRESS}', '{U_TEL}', '{U_PERMISSION}')".format(
+             USER_ID = request.form['account'],
+             U_EMAIL = request.form['email'],
+             U_PASSWD = request.form['password'],
+             U_NAME = request.form['username'],
+             U_ADDRESS = request.form['address'],
+             U_TEL = request.form['tel'],
+             U_PERMISSION = request.form['permission']
+            )
+        result = conn.execute(sql)
+
+        conn.close()     
+        return render_template('login.html')
+
+
+    return render_template('registered.html')

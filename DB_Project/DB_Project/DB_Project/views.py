@@ -164,10 +164,16 @@ def overseasare():
     sql = "SELECT U_NAME FROM TB_USER WHERE user_id = '{username}'".format(
              username = g.user.id
             )
+    sql2 = "SELECT W_COUNTRY,W_ADDRESS,W_TEL,W_EMAIL FROM TB_OVERSEAS_WAREHOUSE"
     result = conn.execute(sql)
 
-    USER_NAME = result.fetchone()  
+    USER_NAME = result.fetchone()[0]
+    result2 = conn.execute(sql2).fetchall()
+
+    for row in result2:
+        print(row)
 
     conn.close()     
     return render_template('overseasarehouse.html',
-                           UserName = USER_NAME)
+                           UserName = USER_NAME,
+                           HOUSE = result2 )

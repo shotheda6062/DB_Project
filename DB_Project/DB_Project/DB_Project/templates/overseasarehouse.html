@@ -85,37 +85,32 @@
 {% endblock %}
 
 {% block content %}
-<h2>{{UserName}}</h2>
-<div class="container-fluid">
+<div class="container">
     <div class="row">
+
         <div class="col-md-6">
             <div class="tab" role="tabpanel">
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#Section1" aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-globe"></i> Section 1</a>
-                    </li>
+
+                    {% for row in HOUSE %}
                     <li role="presentation">
-                        <a href="#Section2" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i> Section 2</a>
+                        <a href="#Section{{loop.index}}" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i> {{row[0]}}</a>
                     </li>
-                    <li role="presentation">
-                        <a href="#Section3" aria-controls="messages" role="tab" data-toggle="tab"><i class="fa fa-briefcase"></i> Section 3</a>
-                    </li>
+                    {% endfor %}
+
                 </ul>
                 <!-- Tab panes -->
                 <div class="tab-content tabs">
-                    <div role="tabpanel" class="tab-pane fade in active" id="Section1">
-                        <h3>Section 1</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec urna aliquam, ornare eros vel, malesuada lorem. Nullam faucibus lorem at eros consectetur lobortis. Maecenas nec nibh congue, placerat sem id, rutrum velit. Phasellus porta enim at facilisis condimentum. Maecenas pharetra dolor vel elit tempor pellentesque sed sed eros. Aenean vitae mauris tincidunt, imperdiet orci semper, rhoncus ligula. Vivamus scelerisque.</p>
+                    {% for row in HOUSE %}
+                    <div role="tabpane{{loop.index}}" class="tab-pane fade in active" id="Section{{loop.index}}">
+                        <p>Name：{{UserName}}</p>
+                        <p>Address：{{row[1]}}</p>
+                        <p>Country：{{row[0]}}</p>
+                        <p>Email：{{row[3]}}</p>
+                        <p>Tel：{{row[2]}}</p>
                     </div>
-                    <div role="tabpanel" class="tab-pane fade" id="Section2">
-                        <h3>Section 2</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec urna aliquam, ornare eros vel, malesuada lorem. Nullam faucibus lorem at eros consectetur lobortis. Maecenas nec nibh congue, placerat sem id, rutrum velit. Phasellus porta enim at facilisis condimentum. Maecenas pharetra dolor vel elit tempor pellentesque sed sed eros. Aenean vitae mauris tincidunt, imperdiet orci semper, rhoncus ligula. Vivamus scelerisque.</p>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" id="Section3">
-                        <h3>Section 3</h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec urna aliquam, ornare eros vel, malesuada lorem. Nullam faucibus lorem at eros consectetur lobortis. Maecenas nec nibh congue, placerat sem id, rutrum velit. Phasellus porta enim at facilisis condimentum. Maecenas pharetra dolor vel elit tempor pellentesque sed sed eros. Aenean vitae mauris tincidunt, imperdiet orci semper, rhoncus ligula. Vivamus scelerisque.</p>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

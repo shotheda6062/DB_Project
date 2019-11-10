@@ -3,16 +3,20 @@
 Routes and views for the flask application.
 """
 from datetime import datetime
-from flask import render_template, request,g
+from flask import render_template, request,g,redirect,url_for,session
 from DB_Project import app
 from sqlalchemy import Column, String, create_engine
 import cx_Oracle
 import json
 from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user
 
+
+app.config['TESTING'] = False
 app.secret_key = 'Your Key'
 login_manager = LoginManager(app)
-
+login_manager.login_view = "member"
+login_manager.login_message = u"请登录！"
+login_manager.login_message_category = "info"
 
 class User(UserMixin):
     def is_authenticated(self):
@@ -22,15 +26,16 @@ class User(UserMixin):
     def is_anonymous(self):
         return False
     
+    
 
 @login_manager.user_loader  
 def user_loader(user_id):
-
     if user_id is None:
         return None
-
     user = User()  
     user.id = user_id  
+    user.permission = session.get('permission')
+    user.username = session.get('username')
     return user
 
 @app.before_request
@@ -46,8 +51,15 @@ def home():
         year=datetime.now().year,
     )
 
+@app.route('/logout')  
+def logout():  
+    #logout\_user會將所有的相關session資訊給pop掉 
+    logout_user()  
+    return redirect(url_for('home'))
+
 @app.route('/memberCenter',methods=['GET', 'POST'])
 def member():
+    
     if request.method == 'POST': 
         host='140.117.69.58'
         port='1521'
@@ -71,28 +83,34 @@ def member():
         )
     
         conn = engine.connect()
-        sql = "SELECT 1 FROM TB_USER WHERE user_id = '{username}' AND u_passwd = '{password}'".format(
+        sql = "SELECT U_PERMISSION,U_NAME FROM TB_USER WHERE user_id = '{username}' AND u_passwd = '{password}'".format(
              username = request.form['username'],
              password = request.form['password']
             )
-        result = conn.execute(sql)
+        result = conn.execute(sql).fetchone()
 
        
-        if result.fetchone() is None:  
+        if result is None:  
             conn.close()
             return render_template('login.html')
         else:
         #  實作User類別  
             user = User()  
+        #  權限判斷
+            user.permission = result[0]
+            user.username = result[1]
+            session['permission'] = result[0]
+            session['username'] = result[1]
         #  設置id  
             user.id = request.form['username']  
         #  這邊，透過login_user來記錄user_id，如下了解程式碼的login_user說明。  
-            login_user(user)  
+            login_user(user)
         #  登入成功，轉址  
             conn.close()
             return render_template('index.html')
-    if g.user is not None :
-        return render_template('overseasarehouse.html')
+
+    if g.user is not None and g.user.is_authenticated:
+        return redirect(url_for('overseasare'))
     else:
         return render_template('login.html')
 
@@ -138,8 +156,9 @@ def registered():
 
     return render_template('registered.html')
 
-@login_required
+
 @app.route('/overseasare',methods=['GET', 'POST'])
+@login_required
 def overseasare():
 
     host='140.117.69.58'
@@ -181,8 +200,9 @@ def overseasare():
                            UserName = USER_NAME,
                            HOUSE = result2 )
 
-@login_required
+
 @app.route('/package_manage',methods=['GET', 'POST'])
+@login_required
 def package_manage():
     if request.method == 'GET': 
         host='140.117.69.58'
@@ -224,8 +244,10 @@ def package_manage():
     conn.close() 
     return render_template('package_manage.html', STATUS0 = result0)
 
-@login_required
+
 @app.route('/package_manage',methods=['GET', 'POST'])
+@login_required
+
 def package_declaration():
     if request.method == 'POST':
         host='140.117.69.58'

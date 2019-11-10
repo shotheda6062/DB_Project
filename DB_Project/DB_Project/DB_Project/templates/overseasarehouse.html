@@ -104,7 +104,7 @@
                 <div class="tab-content tabs">
                     {% for row in HOUSE %}
                     <div role="tabpane{{loop.index}}" class="tab-pane fade" id="Section{{loop.index}}">
-                        <p>Name：{{UserName}}</p>
+                        <p>Name：{{UserName}}  {{UserId}}</p>
                         <p>Address：{{row[1]}}</p>
                         <p>Country：{{row[0]}}</p>
                         <p>Email：{{row[3]}}</p>

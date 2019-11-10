@@ -202,6 +202,7 @@ def overseasare():
     conn.close()     
     return render_template('overseasarehouse.html',
                            UserName = USER_NAME,
+                           UserId = g.user.userId,
                            HOUSE = result2 )
 
 

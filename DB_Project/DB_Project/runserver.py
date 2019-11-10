@@ -5,7 +5,7 @@ This script runs the DB_Project application using a development server.
 
 from os import environ
 from DB_Project import app
-
+environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 if __name__ == '__main__':
     HOST = environ.get('SERVER_HOST', 'localhost')
     try:

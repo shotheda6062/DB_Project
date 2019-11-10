@@ -244,7 +244,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="{{url_for('member')}}">會員中心</a></li>
                     <li><a href="{{url_for('overseasare')}}">海外倉庫地址</a></li>
-                    <li><a href="#portfolio">貨件申報管理</a></li>
+                    <li><a href="{{url_for('package_manage')}}">貨件申報管理</a></li>
                     <li><a href="#pricing">轉運單</a></li>
                     {% if current_user.is_authenticated %}
                         {% if current_user.permission == 1 %}

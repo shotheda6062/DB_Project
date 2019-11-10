@@ -47,6 +47,7 @@
     <Content Include="DB_Project\templates\layout.html" />
     <Content Include="DB_Project\templates\login.html" />
     <Content Include="DB_Project\templates\overseasarehouse.html" />
+    <Content Include="DB_Project\templates\package_manage.html" />
     <Content Include="DB_Project\templates\prepros-6.config" />
     <Content Include="DB_Project\templates\registered.html" />
     <Content Include="requirements.txt" />

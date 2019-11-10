@@ -229,20 +229,38 @@ def package_manage():
         conn = engine.connect()
         
         
-        sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}'".format(
+        sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}' ORDER BY P_STATUS_CODE  ".format(
              username = g.user.id
             )
         result = conn.execute(sql).fetchall()
 
         #已申報貨件，顯示貨件編號，貨件申報日期,寫法是否正確？
-        result0 = ''
+        list1 = [] 
+        list2 = [] 
+        list3 = [] 
+        list4 = [] 
+        list5 = [] 
+
         for row in result:
             if row[5] == 0:
-                result0 = result0.join(row[0],row[1],'\n')
-        
+                list1.append(row)
+            if row[5] == 1:
+                list2.append(row)
+            if row[5] == 2:
+                list3.append(row)
+            if row[5] == 3:
+                list4.append(row)
+            if row[5] == 4:
+                list5.append(row)
+
 
     conn.close() 
-    return render_template('package_manage.html', STATUS0 = result0)
+    return render_template('package_manage.html',
+                            SOURCE1 = list1,
+                            SOURCE2 = list2,
+                            SOURCE3 = list3,
+                            SOURCE4 = list4,
+                            SOURCE5 = list5)
 
 
 @app.route('/package_manage',methods=['GET', 'POST'])

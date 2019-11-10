@@ -94,7 +94,7 @@
                 <ul class="nav nav-tabs" role="tablist">
 
                     {% for row in HOUSE %}
-                    <li role="presentation">
+                    <li role="presentation" id="tab{{loop.index}}">
                         <a href="#Section{{loop.index}}" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i> {{row[0]}}</a>
                     </li>
                     {% endfor %}
@@ -103,7 +103,7 @@
                 <!-- Tab panes -->
                 <div class="tab-content tabs">
                     {% for row in HOUSE %}
-                    <div role="tabpane{{loop.index}}" class="tab-pane fade in active" id="Section{{loop.index}}">
+                    <div role="tabpane{{loop.index}}" class="tab-pane fade" id="Section{{loop.index}}">
                         <p>Name：{{UserName}}</p>
                         <p>Address：{{row[1]}}</p>
                         <p>Country：{{row[0]}}</p>
@@ -119,3 +119,10 @@
 
     {% endblock %}
 
+{% block scripts %}
+<script>
+    $("#tab1").addClass("active");
+    $("#Section1").addClass("tab-pane fade active in");
+
+</script>>
+{% endblock %}

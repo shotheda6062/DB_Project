@@ -12,6 +12,8 @@ from flask_login import LoginManager, UserMixin, login_user, current_user, login
 
 app.secret_key = 'Your Key'
 login_manager = LoginManager(app)
+
+
 class User(UserMixin):
     def is_authenticated(self):
         return True
@@ -90,7 +92,7 @@ def member():
             conn.close()
             return render_template('index.html')
     if g.user is not None :
-        return render_template('login.html')
+        return render_template('overseasarehouse.html')
     else:
         return render_template('login.html')
 
@@ -136,6 +138,7 @@ def registered():
 
     return render_template('registered.html')
 
+@login_required
 @app.route('/overseasare',methods=['GET', 'POST'])
 def overseasare():
 
@@ -177,3 +180,94 @@ def overseasare():
     return render_template('overseasarehouse.html',
                            UserName = USER_NAME,
                            HOUSE = result2 )
+
+@login_required
+@app.route('/package_manage',methods=['GET', 'POST'])
+def package_manage():
+    if request.method == 'GET': 
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+
+        conn = engine.connect()
+        
+        
+        sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}'".format(
+             username = g.user.id
+            )
+        result = conn.execute(sql).fetchall()
+
+        #已申報貨件，顯示貨件編號，貨件申報日期,寫法是否正確？
+        result0 = ''
+        for row in result:
+            if row[5] == 0:
+                result0 = result0.join(row[0],row[1],'\n')
+        
+
+    conn.close() 
+    return render_template('package_manage.html', STATUS0 = result0)
+
+@login_required
+@app.route('/package_manage',methods=['GET', 'POST'])
+def package_declaration():
+    if request.method == 'POST':
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+
+        conn = engine.connect()
+        #用戶點擊按此申報貨件,P_ID暫時手動輸入
+        sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ('{P_ID}', '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}', '{P_DATE_DECLARATION}')".format(
+             P_ID = request.form['P_ID'],
+             USER_ID = g.user.id,
+             W_COUNTRY = request.form['W_COUNTRY'],
+             D_EXPRESS = request.form['D_EXPRESS'],
+             D_TRACK_NO = request.form['D_TRACK_NO'],
+             P_DATE_DECLARATION = datetime.now(),
+            )
+        sql7="INSERT INTO GROUP7.TB_GOODS_INFO (P_ID, G_NAME, QUANTITY, UNIT_PRICE) VALUES ('{P_ID}', '{G_NAME}', '{QUANTITY}', '{UNIT_PRICE}')".format(
+            P_ID = request.form['P_ID'],
+            G_NAME = request.form['G_NAME'],
+            QUANTITY = request.form['QUANTITY'],
+            UNIT_PRICE = request.form['UNIT_PRICE'],
+            )
+        #用戶點擊提交後
+        result6 = conn.execute(sql6)
+        result7 = conn.execute(sql7)
+    conn.close()     
+    return render_template('package_manage.html')
+

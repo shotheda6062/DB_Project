@@ -36,6 +36,7 @@ def user_loader(user_id):
     user.id = user_id  
     user.permission = session.get('permission')
     user.username = session.get('username')
+    user.userId = session.get('userId')
     return user
 
 @app.before_request
@@ -83,7 +84,7 @@ def member():
         )
     
         conn = engine.connect()
-        sql = "SELECT U_PERMISSION,U_NAME FROM TB_USER WHERE user_id = '{username}' AND u_passwd = '{password}'".format(
+        sql = "SELECT U_PERMISSION,U_NAME,USER_ID FROM TB_USER WHERE U_EMAIL = '{username}' AND U_PASSWD = '{password}'".format(
              username = request.form['username'],
              password = request.form['password']
             )
@@ -99,8 +100,10 @@ def member():
         #  權限判斷
             user.permission = result[0]
             user.username = result[1]
+            user.userId = result[2]
             session['permission'] = result[0]
             session['username'] = result[1]
+            session['userId'] = result[2]
         #  設置id  
             user.id = request.form['username']  
         #  這邊，透過login_user來記錄user_id，如下了解程式碼的login_user說明。  
@@ -139,8 +142,9 @@ def registered():
         )
     
         conn = engine.connect()
-        sql = "INSERT INTO GROUP7.TB_USER (USER_ID, U_EMAIL, U_PASSWD, U_NAME, U_ADDRESS, U_TEL, U_PERMISSION) VALUES ('{USER_ID}', '{U_EMAIL}', '{U_PASSWD}', '{U_NAME}', '{U_ADDRESS}', '{U_TEL}', '{U_PERMISSION}')".format(
-             USER_ID = request.form['account'],
+        SEQ_SQL = "UPDATE TB_COUNT_SEQ SET SEQ = (SELECT (SEQ + 1) FROM TB_COUNT_SEQ FETCH FIRST 1 ROWS ONLY)"
+        conn.execute(SEQ_SQL)
+        sql = "INSERT INTO GROUP7.TB_USER (USER_ID, U_EMAIL, U_PASSWD, U_NAME, U_ADDRESS, U_TEL, U_PERMISSION) VALUES ((SELECT 'U'||(LPAD(SEQ, 5, '0')) FROM TB_COUNT_SEQ FETCH FIRST 1 ROWS ONLY), '{U_EMAIL}', '{U_PASSWD}', '{U_NAME}', '{U_ADDRESS}', '{U_TEL}', '{U_PERMISSION}')".format(
              U_EMAIL = request.form['email'],
              U_PASSWD = request.form['password'],
              U_NAME = request.form['username'],
@@ -181,10 +185,10 @@ def overseasare():
         pool_size=50,
         echo=True
     )
-    
+    print(g.user.userId)
     conn = engine.connect()
     sql = "SELECT U_NAME FROM TB_USER WHERE user_id = '{username}'".format(
-             username = g.user.id
+             username = g.user.userId
             )
     sql2 = "SELECT W_COUNTRY,W_ADDRESS,W_TEL,W_EMAIL FROM TB_OVERSEAS_WAREHOUSE"
     result = conn.execute(sql)
@@ -230,7 +234,7 @@ def package_manage():
         
         
         sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}' ORDER BY P_STATUS_CODE  ".format(
-             username = g.user.id
+             username = g.user.userId
             )
         result = conn.execute(sql).fetchall()
 
@@ -263,9 +267,8 @@ def package_manage():
                             SOURCE5 = list5)
 
 
-@app.route('/package_manage',methods=['GET', 'POST'])
+@app.route('/package_declaration',methods=['POST'])
 @login_required
-
 def package_declaration():
     if request.method == 'POST':
         host='140.117.69.58'
@@ -291,13 +294,12 @@ def package_declaration():
 
         conn = engine.connect()
         #用戶點擊按此申報貨件,P_ID暫時手動輸入
-        sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ('{P_ID}', '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}', '{P_DATE_DECLARATION}')".format(
+        sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ('{P_ID}', '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}',SYSDATE)".format(
              P_ID = request.form['P_ID'],
-             USER_ID = g.user.id,
+             USER_ID = g.user.userId,
              W_COUNTRY = request.form['W_COUNTRY'],
              D_EXPRESS = request.form['D_EXPRESS'],
              D_TRACK_NO = request.form['D_TRACK_NO'],
-             P_DATE_DECLARATION = datetime.now(),
             )
         sql7="INSERT INTO GROUP7.TB_GOODS_INFO (P_ID, G_NAME, QUANTITY, UNIT_PRICE) VALUES ('{P_ID}', '{G_NAME}', '{QUANTITY}', '{UNIT_PRICE}')".format(
             P_ID = request.form['P_ID'],

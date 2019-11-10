@@ -334,12 +334,14 @@
                     <span></span>
                 </h4>
                 <div class="form">
-                    <form action="contact_send_mail.php" method="post" id="contactFrm" name="contactFrm">
-                        <input type="text" required="" placeholder="Please input your Name" value="" name="name" class="txt">
-                        <input type="text" required="" placeholder="Please input your mobile No" value="" name="mob" class="txt">
-                        <input type="text" required="" placeholder="Please input your Email" value="" name="email" class="txt">
-
-                        <textarea placeholder="Your Message" name="mess" type="text" class="txt_3"></textarea>
+                    <form action="{{ url_for('package_declaration') }}" method="post" id="contactFrm" name="contactFrm">
+                        <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt">
+                        <input type="text" required="" placeholder="Please input your W_COUNTRY" value="" name="W_COUNTRY" class="txt">
+                        <input type="text" required="" placeholder="Please input your D_EXPRESS" value="" name="D_EXPRESS" class="txt">
+                        <input type="text" required="" placeholder="Please input your D_TRACK_NO" value="" name="D_TRACK_NO" class="txt">
+                        <input type="text" required="" placeholder="Please input your G_NAME" value="" name="G_NAME" class="txt">
+                        <input type="text" required="" placeholder="Please input your QUANTITY" value="" name="QUANTITY" class="txt">
+                        <input type="text" required="" placeholder="Please input your UNIT_PRICE" value="" name="UNIT_PRICE" class="txt">
                         <input type="submit" value="submit" name="submit" class="txt2">
                     </form>
                 </div>

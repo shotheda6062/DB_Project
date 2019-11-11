@@ -1,6 +1,7 @@
 ﻿{% extends "layout.html" %}
 {% block style %}
 <style>
+
     body {
         padding-top: 70px;
     }
@@ -159,38 +160,36 @@
                 <ul class="nav nav-tabs" role="tablist">
 
                     <li role="presentation" id="tab1">
-                        <a href="#Section1" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>已申報案件</a>
+                        <a href="#Section1" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>香港倉庫</a>
                     </li>
 
                     <li role="presentation" id="tab2">
-                        <a href="#Section2" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>海外入庫</a>
+                        <a href="#Section2" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>準備發貨</a>
                     </li>
 
                     <li role="presentation" id="tab3">
-                        <a href="#Section3" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>海外出庫</a>
+                        <a href="#Section3" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>安排宅配</a>
                     </li>
 
                     <li role="presentation" id="tab4">
-                        <a href="#Section4" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>香港倉庫</a>
+                        <a href="#Section4" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>完成</a>
                     </li>
 
-                    <li role="presentation" id="tab5">
-                        <a href="#Section5" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>轉運單貨件</a>
-                    </li>
                 </ul>
                 <!-- Tab panes -->
                 <div class="tab-content tabs">
                     <div role="tabpanel" class="tab-pane fade" id="Section1">
+                        <!--香港倉庫-->
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th scope="col">序號</th>
                                     <th scope="col">貨件編號</th>
-                                    <th scope="col">貨件申報日期</th>
+                                    <th scope="col">貨件實重</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in SOURCE1 %}
+                                {% for row in HK_RESULT %}
                                 <tr>
                                     <th scope="row">{{loop.index}}</th>
                                     <td>{{row[0]}}</td>
@@ -201,79 +200,84 @@
                         </table>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="Section2">
+                        <!--準備發貨-->
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th scope="col">序號</th>
                                     <th scope="col">貨件編號</th>
-                                    <th scope="col">貨件申報日期</th>
-                                    <th scope="col">入庫時間</th>
+                                    <th scope="col">貨件實重</th>
+                                    <th scope="col">總收費重</th>
+                                    <th scope="col">費用</th>
+                                    <th scope="col">地址</th>
+                                    <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in SOURCE2 %}
+                                {% for row in READY_RESULT %}
                                 <tr>
                                     <th scope="row">{{loop.index}}</th>
                                     <td>{{row[0]}}</td>
                                     <td>{{row[1]}}</td>
                                     <td>{{row[2]}}</td>
+                                    <td>{{row[3]}}</td>
+                                    <td>{{row[4]}}</td>
                                 </tr>
                                 {%endfor%}
                             </tbody>
                         </table>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="Section3">
+                        <!--安排宅配-->
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th scope="col">序號</th>
                                     <th scope="col">貨件編號</th>
-                                    <th scope="col">出庫時間</th>
+                                    <th scope="col">貨件實重</th>
+                                    <th scope="col">總收費重</th>
+                                    <th scope="col">費用</th>
+                                    <th scope="col">地址</th>
+                                    <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in SOURCE3 %}
+                                {% for row in FREGIHT_RESULT %}
                                 <tr>
                                     <th scope="row">{{loop.index}}</th>
                                     <td>{{row[0]}}</td>
                                     <td>{{row[1]}}</td>
+                                    <td>{{row[2]}}</td>
+                                    <td>{{row[3]}}</td>
+                                    <td>{{row[4]}}</td>
                                 </tr>
                                 {%endfor%}
                             </tbody>
                         </table>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="Section4">
+                        <!--完成-->
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th scope="col">序號</th>
                                     <th scope="col">貨件編號</th>
+                                    <th scope="col">貨件實重</th>
+                                    <th scope="col">總收費重</th>
+                                    <th scope="col">費用</th>
+                                    <th scope="col">地址</th>
+                                    <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for row in SOURCE4 %}
+                                {% for row in FINISH_RESULT %}
                                 <tr>
                                     <th scope="row">{{loop.index}}</th>
                                     <td>{{row[0]}}</td>
-                                </tr>
-                                {%endfor%}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" id="Section5">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">序號</th>
-                                    <th scope="col">貨件編號</th>
-                                    <th scope="col">貨件合併日期(TB_MERGE_WAREHOUSE.M_DATE)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in SOURCE5 %}
-                                <tr>
-                                    <th scope="row">{{loop.index}}</th>
-                                    <td>{{row[0]}}</td>
+                                    <td>{{row[1]}}</td>
+                                    <td>{{row[2]}}</td>
+                                    <td>{{row[3]}}</td>
+                                    <td>{{row[4]}}</td>
                                 </tr>
                                 {%endfor%}
                             </tbody>
@@ -293,31 +297,9 @@
                     <span></span>
                 </h4>
                 <div class="form">
-                    <form action="{{ url_for('package_declaration') }}" method="post" id="contactFrm" name="contactFrm">
+                    <form action="{{ url_for('hk_package_view') }}" method="post">
                         <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt">
-                        <input type="text" required="" placeholder="Please input your W_COUNTRY" value="" name="W_COUNTRY" class="txt">
-                        <input type="text" required="" placeholder="Please input your D_EXPRESS" value="" name="D_EXPRESS" class="txt">
-                        <input type="text" required="" placeholder="Please input your D_TRACK_NO" value="" name="D_TRACK_NO" class="txt">
-                        <input type="submit" value="submit" name="submit" class="txt2">
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form_main">
-                <h4 class="heading">
-                    <strong>Quick </strong> Contact
-                    <span></span>
-                </h4>
-                <div class="form">
-                    <form action="{{ url_for('goods_info') }}" method="post" id="contactFrm" name="contactFrm">
-                        <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt" />
-                        <input type="text" required="" placeholder="Please input your G_NAME" value="" name="G_NAME" class="txt">
-                        <input type="text" required="" placeholder="Please input your QUANTITY" value="" name="QUANTITY" class="txt">
-                        <input type="text" required="" placeholder="Please input your UNIT_PRICE" value="" name="UNIT_PRICE" class="txt">
+                        <input type="text"  placeholder="Please input your M_ID" value="" name="M_ID" class="txt">
                         <input type="submit" value="submit" name="submit" class="txt2">
                     </form>
                 </div>

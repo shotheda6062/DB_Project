@@ -81,6 +81,7 @@
     <Content Include="DB_Project\static\content\scss\_screen-reader.scss" />
     <Content Include="DB_Project\static\content\scss\_stacked.scss" />
     <Content Include="DB_Project\static\content\scss\_variables.scss" />
+    <Content Include="DB_Project\templates\hk_package.html" />
     <Content Include="DB_Project\templates\index.html" />
     <Content Include="DB_Project\templates\layout.html" />
     <Content Include="DB_Project\templates\login.html" />

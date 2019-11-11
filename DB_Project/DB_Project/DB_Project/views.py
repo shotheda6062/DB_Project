@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, create_engine
 import cx_Oracle
 import json
 from flask_login import LoginManager, UserMixin, login_user, current_user, login_required, logout_user
-
+import math
 
 app.config['TESTING'] = False
 app.secret_key = 'Your Key'
@@ -142,9 +142,9 @@ def registered():
         )
     
         conn = engine.connect()
-        SEQ_SQL = "UPDATE TB_COUNT_SEQ SET SEQ = (SELECT (SEQ + 1) FROM TB_COUNT_SEQ FETCH FIRST 1 ROWS ONLY)"
+        SEQ_SQL = "UPDATE TB_COUNT_SEQ SET SEQ = (SELECT (SEQ + 1) FROM TB_COUNT_SEQ WHERE T_NAME = 'TB_USER' FETCH FIRST 1 ROWS ONLY)  WHERE T_NAME = 'TB_USER'"
         conn.execute(SEQ_SQL)
-        sql = "INSERT INTO GROUP7.TB_USER (USER_ID, U_EMAIL, U_PASSWD, U_NAME, U_ADDRESS, U_TEL, U_PERMISSION) VALUES ((SELECT 'U'||(LPAD(SEQ, 5, '0')) FROM TB_COUNT_SEQ FETCH FIRST 1 ROWS ONLY), '{U_EMAIL}', '{U_PASSWD}', '{U_NAME}', '{U_ADDRESS}', '{U_TEL}', '{U_PERMISSION}')".format(
+        sql = "INSERT INTO GROUP7.TB_USER (USER_ID, U_EMAIL, U_PASSWD, U_NAME, U_ADDRESS, U_TEL, U_PERMISSION) VALUES ((SELECT 'U'||(LPAD(SEQ, 5, '0')) FROM TB_COUNT_SEQ  WHERE T_NAME = 'TB_USER' FETCH FIRST 1 ROWS ONLY), '{U_EMAIL}', '{U_PASSWD}', '{U_NAME}', '{U_ADDRESS}', '{U_TEL}', '{U_PERMISSION}')".format(
              U_EMAIL = request.form['email'],
              U_PASSWD = request.form['password'],
              U_NAME = request.form['username'],
@@ -233,13 +233,17 @@ def package_manage():
 
         conn = engine.connect()
         
-        
+        '''
+        此處還需要取回包裹P_STATUS_CODE=4的包裹其TB_MERGE_WAREHOUSE.M_DATE（待測試）
+        sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE, M_DATE FROM TB_PACKAGE JOIN TB_CONTENT JOIN TB_MERGE_WAREHOUSE WHERE USER_ID = '{username}' ORDER BY P_STATUS_CODE  ".format(
+             username = g.user.userId
+            )
+        '''
         sql = "SELECT P_ID, P_DATE_DECLARATION, P_DATE_IN, P_DATE_OUT, W_COUNTRY, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}' ORDER BY P_STATUS_CODE  ".format(
              username = g.user.userId
             )
         result = conn.execute(sql).fetchall()
 
-        #已申報貨件，顯示貨件編號，貨件申報日期,寫法是否正確？
         list1 = [] 
         list2 = [] 
         list3 = [] 
@@ -294,7 +298,7 @@ def package_declaration():
         )
 
         conn = engine.connect()
-        #用戶點擊按此申報貨件,P_ID暫時手動輸入
+        #用戶點擊提交後，自動生成P_ID（待做）
         sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ('{P_ID}', '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}',SYSDATE)".format(
              P_ID = request.form['P_ID'],
              USER_ID = g.user.userId,
@@ -302,15 +306,187 @@ def package_declaration():
              D_EXPRESS = request.form['D_EXPRESS'],
              D_TRACK_NO = request.form['D_TRACK_NO'],
             )
+
+        result6 = conn.execute(sql6)
+
+    conn.close()     
+    return render_template('package_manage.html')
+
+@app.route('/goods_info',methods=['POST'])
+@login_required
+def goods_info():
+    if request.method == 'POST':
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+
+        conn = engine.connect()
+        #包裹申報與包裹內物品申報在前端應做成兩個表單（待做）
         sql7="INSERT INTO GROUP7.TB_GOODS_INFO (P_ID, G_NAME, QUANTITY, UNIT_PRICE) VALUES ('{P_ID}', '{G_NAME}', '{QUANTITY}', '{UNIT_PRICE}')".format(
             P_ID = request.form['P_ID'],
             G_NAME = request.form['G_NAME'],
             QUANTITY = request.form['QUANTITY'],
             UNIT_PRICE = request.form['UNIT_PRICE'],
             )
-        #用戶點擊提交後
-        result6 = conn.execute(sql6)
-        result7 = conn.execute(sql7)
+    result7 = conn.execute(sql7)
     conn.close()     
     return render_template('package_manage.html')
+
+
+@app.route('/merge',methods=['GET', 'POST'])
+@login_required
+def hk_package_view():
+    if request.method == 'GET': 
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+
+        conn = engine.connect()
+        #香港倉庫
+        sql1 = "SELECT P_ID, P_WEIGHT, P_STATUS_CODE FROM TB_PACKAGE WHERE USER_ID = '{username}' AND P_STATUS_CODE = '4' ".format(
+             username = g.user.userId
+            )
+        hk_result = conn.execute(sql1).fetchall()
+
+        '''
+        準備發貨(M_ID, M_WEIGHT_REAL, M_WEIGHT_CHARGE, M_PRICE, M_DATE，M_STATUS_CODE=0-1)
+        安排宅配(M_ID, M_DATE，M_EXPRESS, M_TRACK_NO, M_STATUS_CODE=2)
+        完成（M_ID, M_STATUS_CODE=3）
+        '''
+        sql2 = "SELECT M_ID, M_WEIGHT_REAL, M_WEIGHT_CHARGE, M_PRICE, M_DATE, M_EXPRESS, M_TRACK_NO, M_STATUS_CODE FROM TB_MERGE_WAREHOUSE WHERE USER_ID = '{username}' ORDER BY M_STATUS_CODE ".format(
+            username = g.user.userId
+            )
+        result2 = conn.execute(sql2).fetchall()
+
+
+        ready_result = [] 
+        fregiht_result = [] 
+        finish_result = [] 
+
+        for row in result2:
+            if row[7] == 0 or row[7] == 1:
+                ready_result.append(row)
+            if row[7] == 2:
+                fregiht_result.append(row)
+            if row[7] == 3:
+                finish_result.append(row)
+        conn.close() 
+        return render_template('hk_package.html',
+                                HK_RESULT = hk_result,
+                                READY_RESULT = ready_result,
+                                FREGIHT_RESULT = fregiht_result,
+                                FINISH_RESULT =finish_result)
+
+
+    if request.method == 'POST':
+        host='140.117.69.58'
+        port='1521'
+        sid='ORCL'
+        user='Group7'
+        password='group77'
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine =  create_engine(
+            cstr,
+            convert_unicode=False,
+            pool_recycle=10,
+            pool_size=50,
+            echo=True
+        )
+        conn = engine.connect()
+
+        #判斷是否加入先有的【合併包裹】
+        if not request.form['M_ID']:
+            sql = "UPDATE GROUP7.TB_COUNT_SEQ SET SEQ = (SEQ + 1) WHERE T_NAME = 'TB_MERGE_WAREHOUSE'"
+            conn.execute(sql)
+            sql = "SELECT ('M'||(LPAD(SEQ, 7, '0'))) FROM TB_COUNT_SEQ WHERE T_NAME = 'TB_MERGE_WAREHOUSE'"
+            m_id = conn.execute(sql).fetchone()
+            sql = "UPDATE GROUP7.TB_PACKAGE SET M_ID = '{M_ID}' WHERE P_ID = '{P_ID}'".format(
+                P_ID = request.form['P_ID'],
+                M_ID = m_id[0]
+                )
+            conn.execute(sql)
+            sql = "SELECT P_WEIGHT FROM TB_PACKAGE WHERE P_ID = '{P_ID}'".format(
+             P_ID = request.form['P_ID']
+            )
+            weight = conn.execute(sql).fetchone()
+
+            sql="INSERT INTO GROUP7.TB_MERGE_WAREHOUSE (M_ID, USER_ID, M_DATE, M_WEIGHT_REAL, M_WEIGHT_CHARGE, M_PRICE, M_STATUS_CODE) VALUES ( '{M_ID}', '{USER_ID}', SYSDATE, '{M_WEIGHT_REAL}', '{M_WEIGHT_CHARGE}', '{M_PRICE}', '{M_STATUS_CODE}')".format(
+                M_ID = m_id[0],
+                USER_ID = g.user.userId,
+                M_WEIGHT_REAL = weight[0],
+                M_WEIGHT_CHARGE = math.ceil(weight[0]),
+                M_PRICE = math.ceil(weight[0]) * 150,
+                M_STATUS_CODE = 0,
+            )            
+            conn.execute(sql)
+        else:
+             sql = "UPDATE GROUP7.TB_PACKAGE SET M_ID = '{M_ID}' WHERE P_ID = '{P_ID}'".format(
+                P_ID = request.form['P_ID'],
+                M_ID =request.form['M_ID']
+                )
+
+             conn.execute(sql)
+             sql = "SELECT P_WEIGHT FROM TB_PACKAGE WHERE P_ID = '{P_ID}'".format(
+             P_ID = request.form['P_ID']
+             )
+             weight = conn.execute(sql).fetchone()
+             
+             sql = "SELECT M_WEIGHT_REAL,M_WEIGHT_CHARGE,M_PRICE FROM GROUP7.TB_MERGE_WAREHOUSE WHERE M_ID = '{M_ID}'".format(
+                 M_ID = request.form['M_ID']
+                 )
+             marge = conn.execute(sql).fetchone()
+
+             sql = "UPDATE GROUP7.TB_MERGE_WAREHOUSE SET M_WEIGHT_REAL = {M_WEIGHT_REAL}, M_WEIGHT_CHARGE = {M_WEIGHT_CHARGE}, M_PRICE = {M_PRICE} WHERE M_ID = '{M_ID}'   ".format(
+                M_ID = request.form['M_ID'],
+                M_WEIGHT_REAL = marge[0] + weight[0],
+                M_WEIGHT_CHARGE = math.ceil(marge[0] + weight[0]),
+                M_PRICE = math.ceil(marge[0] + weight[0]) * 150
+             )            
+             conn.execute(sql)
+        conn.close()     
+        return redirect(url_for('hk_package_view'))
+
+
+
 

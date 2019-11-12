@@ -209,7 +209,6 @@
                                     <th scope="col">貨件實重</th>
                                     <th scope="col">總收費重</th>
                                     <th scope="col">費用</th>
-                                    <th scope="col">地址</th>
                                     <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
@@ -237,7 +236,6 @@
                                     <th scope="col">貨件實重</th>
                                     <th scope="col">總收費重</th>
                                     <th scope="col">費用</th>
-                                    <th scope="col">地址</th>
                                     <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
@@ -265,7 +263,6 @@
                                     <th scope="col">貨件實重</th>
                                     <th scope="col">總收費重</th>
                                     <th scope="col">費用</th>
-                                    <th scope="col">地址</th>
                                     <th scope="col">運單創建時間</th>
                                 </tr>
                             </thead>
@@ -293,13 +290,13 @@
         <div class="col-md-12">
             <div class="form_main">
                 <h4 class="heading">
-                    <strong>Quick </strong> Contact
+                    <strong>包裹合併操作 </strong>
                     <span></span>
                 </h4>
                 <div class="form">
                     <form action="{{ url_for('hk_package_view') }}" method="post">
                         <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt">
-                        <input type="text"  placeholder="Please input your M_ID" value="" name="M_ID" class="txt">
+                        <input type="text"  placeholder="Please input your M_ID，第一件包裹可不填" value="" name="M_ID" class="txt">
                         <input type="submit" value="submit" name="submit" class="txt2">
                     </form>
                 </div>

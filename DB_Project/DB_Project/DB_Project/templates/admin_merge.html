@@ -1,0 +1,257 @@
+﻿
+{% block style %}
+<style>
+    body {
+        padding-top: 70px;
+    }
+
+    a:hover, a:focus {
+        outline: none;
+        text-decoration: none;
+    }
+
+    .tab .nav-tabs {
+        border-bottom: none;
+        position: relative;
+    }
+
+        .tab .nav-tabs li {
+            margin-bottom: 0;
+        }
+
+            .tab .nav-tabs li a {
+                display: block;
+                padding: 15px 20px;
+                border: none;
+                border-radius: 0;
+                background: #fafafa;
+                font-size: 17px;
+                font-weight: 700;
+                color: #732c7b;
+                margin-right: 1px;
+                text-align: center;
+                z-index: 1;
+                transition: all 0.3s ease 0s;
+            }
+
+                .tab .nav-tabs li.active a,
+                .tab .nav-tabs li a:hover {
+                    background: #af94be;
+                    color: #fff;
+                    border: none;
+                }
+
+                .tab .nav-tabs li a:after {
+                    content: "";
+                    width: 100%;
+                    border-top: 2px solid #f2f2f2;
+                    position: absolute;
+                    top: -3px;
+                    left: 0;
+                    transition: all 0.3s ease 0s;
+                }
+
+                .tab .nav-tabs li.active a:after,
+                .tab .nav-tabs li a:hover:after {
+                    border-top: 2px solid #732c7b;
+                }
+
+    .tab .tab-content {
+        padding: 20px;
+        margin-top: 0;
+        border-radius: 0 0 5px 5px;
+        font-size: 15px;
+        color: #757575;
+        line-height: 30px;
+    }
+
+        .tab .tab-content h3 {
+            font-size: 24px;
+            margin-top: 0;
+        }
+
+    @media only screen and (max-width: 479px) {
+        .tab .nav-tabs li {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+            .tab .nav-tabs li:last-child {
+                margin-bottom: 0;
+            }
+    }
+
+    form_main {
+        width: 100%;
+    }
+
+    .form_main h4 {
+        font-family: roboto;
+        font-size: 20px;
+        font-weight: 300;
+        margin-bottom: 15px;
+        margin-top: 20px;
+        text-transform: uppercase;
+    }
+
+    .heading {
+        border-bottom: 1px solid #fcab0e;
+        padding-bottom: 9px;
+        position: relative;
+    }
+
+        .heading span {
+            background: #9e6600 none repeat scroll 0 0;
+            bottom: -2px;
+            height: 3px;
+            left: 0;
+            position: absolute;
+            width: 75px;
+        }
+
+    .form {
+        border-radius: 7px;
+        padding: 6px;
+    }
+
+    .txt[type="text"] {
+        border: 1px solid #ccc;
+        margin: 10px 0;
+        padding: 10px 0 10px 5px;
+        width: 100%;
+    }
+
+    .txt_3[type="text"] {
+        margin: 10px 0 0;
+        padding: 10px 0 10px 5px;
+        width: 100%;
+    }
+
+    .txt2[type="submit"] {
+        background: #242424 none repeat scroll 0 0;
+        border: 1px solid #4f5c04;
+        border-radius: 25px;
+        color: #fff;
+        font-size: 16px;
+        font-style: normal;
+        line-height: 35px;
+        margin: 10px 0;
+        padding: 0;
+        text-transform: uppercase;
+        width: 30%;
+    }
+
+    .txt2:hover {
+        background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+        color: #5793ef;
+        transition: all 0.5s ease 0s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="tab" role="tabpanel">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+
+                    <li role="presentation" id="tab1">
+                        <a href="#Section1" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-rocket"></i>合併與配送管理</a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content tabs">
+                    <div role="tabpanel" class="tab-pane fade" id="Section1">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">序號</th>
+                                    <th scope="col">合併包裹編號</th>
+                                    <th scope="col">用戶ID</th>
+                                    <th scope="col">合併時間</th>
+                                    <th scope="col">包裹實重</th>
+                                    <th scope="col">包裹收費重</th>
+                                    <th scope="col">價格</th>
+                                    <th scope="col">快遞公司</th>
+                                    <th scope="col">快遞單號</th>
+                                    <th scope="col">合併包裹狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in SOURCE %}
+                                <tr>
+                                    <th scope="row">{{loop.index}}</th>
+                                    <td>{{row[0]}}</td>
+                                    <td>{{row[1]}}</td>
+                                    <td>{{row[2]}}</td>
+                                    <td>{{row[3]}}</td>
+                                    <td>{{row[4]}}</td>
+                                    <td>{{row[5]}}</td>
+                                    <td>{{row[6]}}</td>
+                                    <td>{{row[7]}}</td>
+                                    <td>{{row[8]}}</td>
+                                </tr>
+                                {%endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="about" class="container-fluid">
+    <div class="row">
+        <div class="col-sm-8">
+            <h4>狀態對應表</h4><br>
+            <p>* 0包裹合併處理中（默認值）*1包裹合併完成 *2包裹已安排宅配 *3用戶已收貨</p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form_main">
+                <h4 class="heading">
+                    <strong>合併完成操作</strong>
+                    <span></span>
+                </h4>
+                <div class="form">
+                    <form action="{{ url_for('admin_merge_done') }}" method="post" id="contactFrm" name="contactFrm">
+                        <input type="text" required="" placeholder="Please input your M_ID" value="" name="M_ID" class="txt">
+                        <input type="submit" value="submit" name="submit" class="txt2">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form_main">
+                <h4 class="heading">
+                    <strong>已安排宅配</strong>
+                    <span></span>
+                </h4>
+                <div class="form">
+                    <form action="{{ url_for('admin_ship') }}" method="post" id="contactFrm" name="contactFrm">
+                        <input type="text" required="" placeholder="Please input your M_ID" value="" name="M_ID" class="txt">
+                        <input type="text" required="" placeholder="Please input your M_EXPRESS" value="" name="M_EXPRESS" class="txt">
+                        <input type="text" required="" placeholder="Please input your M_TRACK_NO" value="" name="M_TRACK_NO" class="txt">
+                        <input type="submit" value="submit" name="submit" class="txt2">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            {% endblock %}
+
+            {% block scripts %}
+<script>
+    $("#tab1").addClass("active");
+    $("#Section1").addClass("tab-pane fade active in");
+</script>
+            {% endblock %}

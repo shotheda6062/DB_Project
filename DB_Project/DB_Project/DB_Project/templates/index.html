@@ -249,7 +249,9 @@
                     <li><a href="{{url_for('hk_package_view')}}">轉運單</a></li>
                     {% if current_user.is_authenticated %}
                     {% if current_user.permission == 1 %}
-                    <li><a href="#portfolio">controller plan</a></li>
+                    <li><a href="{{url_for('admin_transfer')}}">倉庫管理</a></li>
+                    <li><a href="{{url_for('admin_merge')}}">合併與配送管理</a></li>
+                    <li><a href="{{url_for('admin_declaration')}}">清關管理</a></li>
                     {% endif %}
                     <li><a href="{{url_for('logout')}}">LogOut</a></li>
 

@@ -299,9 +299,11 @@ def package_declaration():
         )
 
         conn = engine.connect()
+
+        SEQ_SQL = "UPDATE TB_COUNT_SEQ SET SEQ = (SELECT (SEQ + 1) FROM TB_COUNT_SEQ WHERE T_NAME = 'TB_USER' FETCH FIRST 1 ROWS ONLY)  WHERE T_NAME = 'TB_PACKAGE'"
+        conn.execute(SEQ_SQL)
         #用戶點擊提交後，自動生成P_ID（待做）
-        sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ('{P_ID}', '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}',SYSDATE)".format(
-             P_ID = request.form['P_ID'],
+        sql6 = "INSERT INTO GROUP7.TB_PACKAGE (P_ID, USER_ID, W_COUNTRY, D_EXPRESS, D_TRACK_NO, P_DATE_DECLARATION) VALUES ((SELECT 'P'||(LPAD(SEQ, 7, '0')) FROM TB_COUNT_SEQ  WHERE T_NAME = 'TB_PACKAGE' FETCH FIRST 1 ROWS ONLY), '{USER_ID}', '{W_COUNTRY}', '{D_EXPRESS}', '{D_TRACK_NO}',SYSDATE)".format(
              USER_ID = g.user.userId,
              W_COUNTRY = request.form['W_COUNTRY'],
              D_EXPRESS = request.form['D_EXPRESS'],
@@ -732,9 +734,13 @@ def admin_ship():
             v3 = request.form['M_TRACK_NO'],
             )
         
+        sql = "UPDATE GROUP7.TB_COUNT_SEQ SET SEQ = (SEQ + 1) WHERE T_NAME = 'TB_DECLARATION'"
+        conn.execute(sql)
+        sql = "SELECT ('D'||(LPAD(SEQ, 7, '0'))) FROM TB_COUNT_SEQ WHERE T_NAME = 'TB_DECLARATION'"
+        D_id = conn.execute(sql).fetchone()
         #此處需要隨機產生一個D_ID（未做）
         sql3="INSERT INTO GROUP7.TB_DECLARATION (D_ID, M_ID, D_STATUS_CODE) VALUES ('{D_ID}', '{M_ID}', 0)".format(
-            D_ID = request.form['M_ID'],
+            D_ID = D_id[0],
             M_ID = request.form['M_ID'],
             )
         conn.execute(sql2)
@@ -813,4 +819,36 @@ def admin_declaration_update():
     return redirect(url_for('admin_declaration'))
 
 
+@app.route('/delete_package',methods=['POST'])
+@login_required
+def delete_package():
+    host='140.117.69.58'
+    port='1521'
+    sid='ORCL'
+    user='Group7'
+    password='group77'
+    sid = cx_Oracle.makedsn(host, port, sid=sid)
 
+    cstr = 'oracle://{user}:{password}@{sid}'.format(
+        user=user,
+        password=password,
+        sid=sid
+    )
+
+    engine =  create_engine(
+        cstr,
+        convert_unicode=False,
+        pool_recycle=10,
+        pool_size=50,
+        echo=True
+    )
+
+    conn = engine.connect()
+
+    sql = "DELETE TB_PACKAGE WHERE P_ID = '{P_ID}' AND P_STATUS_CODE = '0'".format(
+        P_ID = request.form['P_ID']
+        )
+
+    conn.execute(sql)
+
+    return redirect(url_for('package_manage'))

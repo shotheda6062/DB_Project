@@ -199,6 +199,20 @@
                                 {%endfor%}
                             </tbody>
                         </table>
+
+                        <div class="form_main">
+                            <h4 class="heading">
+                                <strong>刪除包裹</strong>
+                                <span></span>
+                            </h4>
+                            <div class="form">
+                                <form action="{{ url_for('delete_package') }}" method="post" id="contactFrm" name="contactFrm">
+                                    <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt" />
+                                    <input type="submit" value="submit" name="submit" class="txt2">
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="Section2">
                         <table class="table">
@@ -294,7 +308,6 @@
                 </h4>
                 <div class="form">
                     <form action="{{ url_for('package_declaration') }}" method="post" id="contactFrm" name="contactFrm">
-                        <input type="text" required="" placeholder="Please input your P_ID" value="" name="P_ID" class="txt">
                         <input type="text" required="" placeholder="Please input your W_COUNTRY" value="" name="W_COUNTRY" class="txt">
                         <input type="text" required="" placeholder="Please input your D_EXPRESS" value="" name="D_EXPRESS" class="txt">
                         <input type="text" required="" placeholder="Please input your D_TRACK_NO" value="" name="D_TRACK_NO" class="txt">
@@ -325,6 +338,7 @@
         </div>
     </div>
 </div>
+
             {% endblock %}
 
             {% block scripts %}
